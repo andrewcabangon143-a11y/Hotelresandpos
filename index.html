@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Coron | Midnight Luxury</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020617;
+            --card: #0f172a;
+            --gold: #d4af37;
+            --text: #f8fafc;
+            --border: rgba(255, 255, 255, 0.1);
+            --danger: #ef4444;
+            --success: #10b981;
+            --disabled: #1e293b;
+        }
+
+        * { box-sizing: border-box; scroll-behavior: smooth; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center; padding: 20px 8%;
+            background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(20px);
+            position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border);
+        }
+        .logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 900; color: var(--gold); letter-spacing: 2px; }
+        
+        /* Redesigned Room Cards */
+        .room-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; padding: 40px 10%; max-width: 1200px; margin: auto; }
+        .room-card { background: var(--card); border-radius: 24px; overflow: hidden; border: 1px solid var(--border); transition: transform 0.3s ease; position: relative; }
+        .room-card:hover { transform: translateY(-5px); border-color: var(--gold); }
+        .room-img { height: 300px; background-size: cover; background-position: center; position: relative; }
+        .room-status-dot { position: absolute; top: 20px; right: 20px; width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .status-available { background: var(--success); box-shadow: 0 0 15px var(--success); }
+        .status-full { background: var(--danger); box-shadow: 0 0 15px var(--danger); }
+        
+        .room-body { padding: 25px; }
+        .room-tagline { font-style: italic; color: #94a3b8; font-size: 0.9rem; margin-bottom: 15px; min-height: 40px; }
+        .room-price { font-size: 1.2rem; font-weight: 800; color: var(--gold); margin-bottom: 20px; }
+
+        input, select { width: 100%; padding: 12px; background: #1e293b; border: 1px solid var(--border); border-radius: 10px; color: white; margin-top: 5px; }
+        
+        .view { display: none; }
+        .active-view { display: block; }
+        .pos-container { display: grid; grid-template-columns: 220px 1fr 350px; gap: 20px; padding: 20px 4%; height: 85vh; }
+        .pos-nav { display: flex; flex-direction: column; gap: 10px; }
+        .nav-item { padding: 15px; background: rgba(255,255,255,0.05); border: none; color: white; border-radius: 10px; cursor: pointer; text-align: left; font-weight: 600; }
+        .nav-item.active { background: var(--gold); color: black; }
+        .pos-main { background: #070b1d; border-radius: 20px; padding: 25px; overflow-y: auto; border: 1px solid var(--border); }
+        .pos-tab { display: none; }
+        .active-tab { display: block; }
+
+        .room-matrix-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+        .room-box { padding: 8px 0; text-align: center; border-radius: 4px; font-size: 0.65rem; border: 1px solid var(--success); color: var(--success); font-weight: 800; cursor: pointer; }
+        .room-box.reserved { background: var(--gold); color: black; border: none; }
+        .room-box.occupied { background: var(--danger); color: white; border: none; }
+        .tier-label { grid-column: 1 / -1; font-size: 0.65rem; color: var(--gold); margin-top: 10px; border-bottom: 1px solid var(--border); text-transform: uppercase; }
+
+        #luxury-alert {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #0f172a; border: 2px solid var(--gold); padding: 40px; border-radius: 20px;
+            text-align: center; z-index: 9999; display: none; box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        .book-btn { width: 100%; padding: 15px; background: var(--gold); border: none; border-radius: 10px; font-weight: 900; cursor: pointer; color: black; }
+        .book-btn:disabled { background: var(--disabled); color: #475569; cursor: not-allowed; border: 1px solid var(--border); }
+        
+        .action-btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.7rem; font-weight: 700; color: white; margin-right: 5px; }
+        .btn-disabled { background: #1e293b !important; color: #475569 !important; cursor: not-allowed; opacity: 0.6; }
+    </style>
+</head>
+<body>
+
+<div id="luxury-alert">
+    <h2 style="font-family:'Playfair Display'; color:var(--gold); margin:0;">CONGRATULATIONS</h2>
+    <p id="alert-msg" style="margin:20px 0; font-weight:300;"></p>
+    <button class="book-btn" onclick="closeAlert()">Confirm</button>
+</div>
+
+<nav class="navbar">
+    <div class="logo">AZURE</div>
+    <div style="font-size:0.8rem; font-weight:800; color:var(--gold);">CORON PALAWAN</div>
+</nav>
+
+<main>
+    <div id="customer-view" class="view active-view">
+        <section style="height: 20vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #020617;">
+            <h1 style="font-family:'Playfair Display'; font-size: 3rem; margin: 0;">Azure Sanctuary</h1>
+            <p style="color: var(--gold); letter-spacing: 4px; font-size: 0.8rem;">ULTRA-LUXURY RESORT & SPA</p>
+        </section>
+        <section class="room-grid" id="roomDisplay"></section>
+        <section id="booking-form" style="padding: 60px 10%; background: #000;">
+            <div style="background:var(--card); padding:40px; border-radius:30px; max-width:900px; margin:auto; border:1px solid var(--border);">
+                <h2 style="color:var(--gold); margin-bottom:20px;">Reservation Inquiry</h2>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                    <div><label>Suite</label><input type="text" id="r_type" readonly></div>
+                    <div><label>PAX</label><select id="r_pax"><option>1 Person</option><option selected>2 Persons</option><option>4 Persons</option></select></div>
+                    <div><label>Name</label><input type="text" id="r_name"></div>
+                    <div><label>Phone</label><input type="text" id="r_phone"></div>
+                    <div><label>Check-In</label><input type="date" id="r_in"></div>
+                    <div><label>Check-Out</label><input type="date" id="r_out"></div>
+                    <div style="grid-column: 1/-1;"><label>Transport</label><select id="r_transport"><option>None</option><option>Airport Pickup</option><option>Seaport Pickup</option></select></div>
+                    <button class="book-btn" id="submitBookingBtn" style="grid-column: 1/-1;" onclick="submitBooking()">Request Stay</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="admin-view" class="view">
+        <div style="padding:15px 4%; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:#020617;">
+            <h2 style="color:var(--gold); margin:0; font-size:1rem;">PMS TERMINAL</h2>
+            <div id="revenue-display" style="font-size:1.5rem; font-weight:900; color:var(--gold);">₱0</div>
+            <button onclick="showView('customer-view')" class="action-btn" style="background:var(--danger)">Lock</button>
+        </div>
+
+        <div class="pos-container">
+            <nav class="pos-nav">
+                <button class="nav-item active" onclick="switchTab('desk', this)">Front Desk</button>
+                <button class="nav-item" onclick="switchTab('resto', this)">Resto & Bar</button>
+                <button class="nav-item" onclick="switchTab('services', this)">Services</button>
+                <button class="nav-item" onclick="switchTab('audit', this)">Audit</button>
+            </nav>
+
+            <section class="pos-main">
+                <div id="tab-desk" class="pos-tab active-tab">
+                    <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px;">
+                        <div>
+                            <h3 style="color:var(--gold);">Arrivals & In-House</h3>
+                            <div id="arrival-logs"></div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.02); padding:20px; border-radius:15px; border:1px solid var(--border);">
+                            <h4 style="margin:0 0 15px 0; color:var(--gold);">Walk-In Entry</h4>
+                            <label>Assigned Room</label><input type="number" id="w_room" readonly>
+                            <label>Guest Name</label><input type="text" id="w_name">
+                            <label>Contact Number</label><input type="text" id="w_phone" placeholder="09XX XXX XXXX">
+                            <label>PAX</label><input type="number" id="w_pax" value="2">
+                            <label>Nights</label><input type="number" id="w_nights" value="1">
+                            <button class="book-btn" style="margin-top:15px;" onclick="processWalkIn()">Check-In Walk-In</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-pos" class="pos-tab">
+                    <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px;">
+                        <div id="pos-items-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:10px;"></div>
+                        <div style="background:#1e293b; padding:20px; border-radius:15px; border:1px solid var(--gold);">
+                            <label>CHARGE TO ROOM:</label>
+                            <select id="pos-guest-select"></select>
+                            <div id="cart-list" style="margin-top:20px; font-size:0.8rem; border-bottom:1px solid var(--border);"></div>
+                            <div id="cart-total" style="font-weight:900; margin: 15px 0;">Total: ₱0</div>
+                            <button class="book-btn" onclick="processCharge()">Complete Order</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-audit" class="pos-tab">
+                    <h3>Shift Audit</h3>
+                    <div id="audit-stats"></div>
+                    <button class="book-btn" style="background:var(--danger); color:white; margin-top:30px;" onclick="masterReset()">RESET ALL DATA</button>
+                </div>
+            </section>
+
+            <aside>
+                <h3 style="font-size:0.8rem; margin:0 0 10px 0;">Room Matrix</h3>
+                <div id="roomMatrix" class="room-matrix-container"></div>
+            </aside>
+        </div>
+    </div>
+</main>
+
+<script>
+const baseRooms = [
+    { id: 'STD', name: 'Standard Sanctuary', price: 4500, start: 101, end: 125, img: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=600', quote: 'A peaceful haven designed for ultimate restoration.' },
+    { id: 'DLX', name: 'Deluxe Ocean Drift', price: 7200, start: 126, end: 140, img: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600', quote: 'Wake up to the rhythmic whispers of the Coron tides.' },
+    { id: 'EXE', name: 'Executive Suite', price: 12500, start: 141, end: 150, img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600', quote: 'Uncompromising luxury for those who lead the world.' },
+    { id: 'PNT', name: 'Royal Penthouse', price: 25000, start: 151, end: 155, img: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600', quote: 'The pinnacle of Azure living. Your private kingdom in the sky.' }
+];
+
+const items = {
+    resto: [
+        {n:"Grilled Blue Marlin", p:650}, {n:"Lechon Kawali", p:450}, {n:"Kinilaw", p:380}, 
+        {n:"Crocodile Sisig", p:520}, {n:"Seafood Paella", p:1200}, {n:"Crispy Pata", p:950},
+        {n:"Azure Burger", p:550}, {n:"Buko Mojito", p:320}, {n:"Mango Daiquiri", p:350},
+        {n:"San Miguel Beer", p:150}, {n:"Espresso Martini", p:450}, {n:"Fresh Buko", p:120}
+    ],
+    services: [
+        {n:"24/7 Butler Service", p:2500}, {n:"Private Chef Dinner", p:5500}, 
+        {n:"In-Room Breakfast", p:1200}, {n:"In-Room Dinner", p:1800},
+        {n:"Hilot Spa Massage", p:2200}, {n:"Aromatherapy Spa", p:2800},
+        {n:"Island Hopping (Tour A)", p:1500}, {n:"Private Van Hire", p:3500}
+    ]
+};
+
+let state = JSON.parse(localStorage.getItem('azure_master_v3')) || {
+    folios: [],
+    revenue: 0,
+    sales: { rooms: 0, resto: 0, services: 0 }
+};
+
+let activeCart = [];
+
+function renderRooms() {
+    const g = document.getElementById('roomDisplay');
+    g.innerHTML = baseRooms.map(r => {
+        const totalRooms = (r.end - r.start) + 1;
+        // CORRECTED: Count only physical occupants, not pending reservations
+        const occupiedCount = state.folios.filter(f => f.type === r.id && f.room !== null).length;
+        const isFull = occupiedCount >= totalRooms;
+        
+        return `
+            <div class="room-card">
+                <div class="room-img" style="background-image:url('${r.img}')">
+                    <div class="room-status-dot ${isFull ? 'status-full' : 'status-available'}"></div>
+                </div>
+                <div class="room-body">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <h3 style="margin:0;">${r.name}</h3>
+                        <span style="font-size:0.7rem; color:${isFull ? 'var(--danger)' : 'var(--success)'}">${totalRooms - occupiedCount} Available</span>
+                    </div>
+                    <p class="room-tagline">"${r.quote}"</p>
+                    <div class="room-price">₱${r.price.toLocaleString()} <span style="font-size:0.7rem; color:#64748b;">/ NIGHT</span></div>
+                    <button class="book-btn" ${isFull ? 'disabled' : ''} onclick="selectRoom('${r.id}','${r.name}')">
+                        ${isFull ? 'FULLY BOOKED' : 'RESERVE SUITE'}
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function selectRoom(id, name) {
+    document.getElementById('r_type').value = name;
+    document.getElementById('r_type').dataset.id = id;
+    document.getElementById('booking-form').scrollIntoView();
+}
+
+function submitBooking() {
+    const name = document.getElementById('r_name').value;
+    if(!name) return alert("Please enter guest name.");
+    const f = {
+        fid: "AZ-" + Math.floor(1000 + Math.random()*9000),
+        name: name,
+        type: document.getElementById('r_type').dataset.id,
+        room: null,
+        status: "RESERVED",
+        in: document.getElementById('r_in').value,
+        out: document.getElementById('r_out').value,
+        charges: []
+    };
+    state.folios.push(f);
+    save();
+    openAlert("YOUR SANCTUARY AWAITS IN CORON");
+}
+
+/* ADMIN */
+window.addEventListener('keydown', (e) => {
+    if(e.shiftKey && e.code === 'KeyA') {
+        if(prompt("Security PIN:") === "1234") { showView('admin-view'); updateAdmin(); }
+    }
+});
+
+function updateAdmin() {
+    document.getElementById('revenue-display').innerText = `₱${state.revenue.toLocaleString()}`;
+    renderFolios();
+    renderMatrix();
+    renderAudit();
+}
+
+function renderFolios() {
+    const log = document.getElementById('arrival-logs');
+    log.innerHTML = state.folios.map(f => {
+        const isInHouse = f.status === 'IN-HOUSE';
+        return `
+            <div style="background:var(--card); padding:15px; border-radius:12px; border-left:4px solid ${f.status==='RESERVED'?'var(--gold)':'var(--danger)'}; margin-bottom:10px;">
+                <div style="display:flex; justify-content:space-between;">
+                    <strong>${f.name}</strong>
+                    <span>${f.type} | RM: ${f.room || 'TBD'}</span>
+                </div>
+                <div style="font-size:0.7rem; margin:10px 0;">ID: ${f.fid} | ${f.status} | Stay: ${f.in} to ${f.out}</div>
+                <button class="action-btn ${isInHouse ? 'btn-disabled' : ''}" 
+                        style="background:var(--success)" 
+                        ${isInHouse ? 'disabled' : ''} 
+                        onclick="checkInGuest('${f.fid}')">Check-In</button>
+                <button class="action-btn" style="background:var(--danger)" onclick="checkOutGuest('${f.fid}')">Check-Out</button>
+                <button class="action-btn" style="background:#64748b" onclick="noShow('${f.fid}')">No-Show</button>
+            </div>
+        `;
+    }).reverse().join('');
+
+    const sel = document.getElementById('pos-guest-select');
+    const inHouse = state.folios.filter(f => f.status === 'IN-HOUSE');
+    sel.innerHTML = inHouse.map(f => `<option value="${f.fid}">${f.name} (RM ${f.room})</option>`).join('') || '<option>None</option>';
+}
+
+function renderMatrix() {
+    const m = document.getElementById('roomMatrix');
+    let html = '';
+    baseRooms.forEach(tier => {
+        html += `<div class="tier-label">${tier.name}</div>`;
+        for(let i=tier.start; i<=tier.end; i++) {
+            let statusClass = '';
+            const occ = state.folios.find(f => f.room == i);
+            if(occ) statusClass = occ.status === 'RESERVED' ? 'reserved' : 'occupied';
+            html += `<div class="room-box ${statusClass}" onclick="matrixClick(${i}, '${tier.id}', '${statusClass}')">${i}</div>`;
+        }
+    });
+    m.innerHTML = html;
+}
+
+function matrixClick(num, tierId, status) {
+    if(status !== '') return;
+    document.getElementById('w_room').value = num;
+    document.getElementById('w_room').dataset.tier = tierId;
+}
+
+function processWalkIn() {
+    const num = document.getElementById('w_room').value;
+    const name = document.getElementById('w_name').value;
+    const phone = document.getElementById('w_phone').value;
+    if(!num || !name || !phone) return alert("Room, Name, and Contact Number required.");
+    
+    const f = {
+        fid: "WALK-" + num,
+        name: name,
+        phone: phone,
+        type: document.getElementById('w_room').dataset.tier,
+        room: num,
+        status: "IN-HOUSE",
+        in: new Date().toISOString().split('T')[0],
+        out: 'N/A',
+        charges: []
+    };
+    state.folios.push(f);
+    save(); updateAdmin();
+}
+
+function checkInGuest(fid) {
+    const f = state.folios.find(f => f.fid === fid);
+    if(f.status === 'IN-HOUSE') return;
+    const tier = baseRooms.find(r => r.id === f.type);
+    for(let i=tier.start; i<=tier.end; i++) {
+        if(!state.folios.find(folio => folio.room == i)) {
+            f.room = i;
+            f.status = 'IN-HOUSE';
+            save(); updateAdmin();
+            return;
+        }
+    }
+    alert("No free rooms in this category!");
+}
+
+function checkOutGuest(fid) {
+    const idx = state.folios.findIndex(f => f.fid === fid);
+    const f = state.folios[idx];
+    const nights = 1; 
+    const roomP = baseRooms.find(r => r.id === f.type).price;
+    const extras = f.charges.reduce((a,b)=>a+b.p, 0);
+    state.revenue += (nights * roomP) + extras;
+    state.sales.rooms++;
+    state.folios.splice(idx, 1);
+    save(); updateAdmin();
+}
+
+function noShow(fid) {
+    state.folios = state.folios.filter(f => f.fid !== fid);
+    save(); updateAdmin();
+}
+
+function processCharge() {
+    const fid = document.getElementById('pos-guest-select').value;
+    const f = state.folios.find(f => f.fid === fid);
+    if(!f) return alert("Select an in-house guest.");
+    activeCart.forEach(c => { f.charges.push(c); state.sales[c.type]++; });
+    activeCart = [];
+    document.getElementById('cart-list').innerHTML = '';
+    save(); updateAdmin();
+}
+
+function switchTab(t, b) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelectorAll('.pos-tab').forEach(p => p.classList.remove('active-tab'));
+    if(t === 'audit') document.getElementById('tab-audit').classList.add('active-tab');
+    else if (t === 'desk') document.getElementById('tab-desk').classList.add('active-tab');
+    else { document.getElementById('tab-pos').classList.add('active-tab'); renderPOS(t); }
+}
+
+function renderPOS(key) {
+    const menu = items[key];
+    document.getElementById('pos-items-grid').innerHTML = menu.map(i => `
+        <div onclick="addToCart('${i.n}', ${i.p}, '${key}')" style="background:#1e293b; padding:15px; border-radius:10px; cursor:pointer; text-align:center; border:1px solid var(--border);">
+            <div style="font-size:0.7rem; font-weight:800;">${i.n}</div>
+            <div style="color:var(--gold); font-size:0.7rem;">₱${i.p}</div>
+        </div>
+    `).join('');
+}
+
+function addToCart(n, p, type) {
+    activeCart.push({n, p, type});
+    document.getElementById('cart-list').innerHTML = activeCart.map(i => `<div style="display:flex; justify-content:space-between"><span>${i.n}</span><span>₱${i.p}</span></div>`).join('');
+    document.getElementById('cart-total').innerText = `Total: ₱${activeCart.reduce((a,b)=>a+b.p,0).toLocaleString()}`;
+}
+
+function renderAudit() {
+    document.getElementById('audit-stats').innerHTML = `
+        <p>Rooms Checked Out: ${state.sales.rooms}</p>
+        <p>Meals Sold: ${state.sales.resto}</p>
+        <p>Services Sold: ${state.sales.services}</p>
+        <h2 style="color:var(--gold);">TOTAL: ₱${state.revenue.toLocaleString()}</h2>
+    `;
+}
+
+function openAlert(m) { document.getElementById('alert-msg').innerText = m; document.getElementById('luxury-alert').style.display = 'block'; }
+function closeAlert() { document.getElementById('luxury-alert').style.display = 'none'; location.reload(); }
+function masterReset() { localStorage.clear(); location.reload(); }
+function showView(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view')); document.getElementById(id).classList.add('active-view'); }
+function save() { localStorage.setItem('azure_master_v3', JSON.stringify(state)); }
+
+document.addEventListener('DOMContentLoaded', renderRooms);
+</script>
+</body>
+</html>
