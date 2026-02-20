@@ -101,7 +101,7 @@
                     <div><label>Phone</label><input type="text" id="r_phone"></div>
                     <div><label>Check-In</label><input type="date" id="r_in"></div>
                     <div><label>Check-Out</label><input type="date" id="r_out"></div>
-                    <div style="grid-column: 1/-1;"><label>Transport</label><select id="r_transport"><option>None</option><option>Airport Pickup</option><option>Seaport Pickup</option></select></div>
+                    <div style="grid-column: 1/-1;"><label>Transport</label><select id="r_transport"><option>None</option><option>Airport Pickup(Busuanga Airport)</option><option>Seaport Pickup(Coron Pier)</option></select></div>
                     <button class="book-btn" id="submitBookingBtn" style="grid-column: 1/-1;" onclick="submitBooking()">Request Stay</button>
                 </div>
             </div>
@@ -421,4 +421,5 @@ function save() { localStorage.setItem('azure_master_v3', JSON.stringify(state))
 document.addEventListener('DOMContentLoaded', renderRooms);
 </script>
 </body>
+
 </html>
