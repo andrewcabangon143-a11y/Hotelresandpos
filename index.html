@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Azure Coron | Midnight Luxury</title>
+    <title>Azure Coron | Midnight Luxury PMS</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -27,17 +27,16 @@
         }
         .logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 900; color: var(--gold); letter-spacing: 2px; }
         
-        /* Redesigned Room Cards */
         .room-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; padding: 40px 10%; max-width: 1200px; margin: auto; }
         .room-card { background: var(--card); border-radius: 24px; overflow: hidden; border: 1px solid var(--border); transition: transform 0.3s ease; position: relative; }
         .room-card:hover { transform: translateY(-5px); border-color: var(--gold); }
         .room-img { height: 300px; background-size: cover; background-position: center; position: relative; }
-        .room-status-dot { position: absolute; top: 20px; right: 20px; width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        
+        .room-status-dot { position: absolute; top: 20px; right: 20px; width: 12px; height: 12px; border-radius: 50%; }
         .status-available { background: var(--success); box-shadow: 0 0 15px var(--success); }
         .status-full { background: var(--danger); box-shadow: 0 0 15px var(--danger); }
         
         .room-body { padding: 25px; }
-        .room-tagline { font-style: italic; color: #94a3b8; font-size: 0.9rem; margin-bottom: 15px; min-height: 40px; }
         .room-price { font-size: 1.2rem; font-weight: 800; color: var(--gold); margin-bottom: 20px; }
 
         input, select { width: 100%; padding: 12px; background: #1e293b; border: 1px solid var(--border); border-radius: 10px; color: white; margin-top: 5px; }
@@ -46,8 +45,8 @@
         .active-view { display: block; }
         .pos-container { display: grid; grid-template-columns: 220px 1fr 350px; gap: 20px; padding: 20px 4%; height: 85vh; }
         .pos-nav { display: flex; flex-direction: column; gap: 10px; }
-        .nav-item { padding: 15px; background: rgba(255,255,255,0.05); border: none; color: white; border-radius: 10px; cursor: pointer; text-align: left; font-weight: 600; }
-        .nav-item.active { background: var(--gold); color: black; }
+        .nav-item { padding: 15px; background: rgba(255,255,255,0.05); border: none; color: white; border-radius: 10px; cursor: pointer; text-align: left; font-weight: 600; transition: 0.3s; }
+        .nav-item.active { background: var(--gold); color: black; box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
         .pos-main { background: #070b1d; border-radius: 20px; padding: 25px; overflow-y: auto; border: 1px solid var(--border); }
         .pos-tab { display: none; }
         .active-tab { display: block; }
@@ -56,25 +55,37 @@
         .room-box { padding: 8px 0; text-align: center; border-radius: 4px; font-size: 0.65rem; border: 1px solid var(--success); color: var(--success); font-weight: 800; cursor: pointer; }
         .room-box.reserved { background: var(--gold); color: black; border: none; }
         .room-box.occupied { background: var(--danger); color: white; border: none; }
+        .room-box:hover { border-color: var(--gold); background: rgba(212, 175, 55, 0.1); }
         .tier-label { grid-column: 1 / -1; font-size: 0.65rem; color: var(--gold); margin-top: 10px; border-bottom: 1px solid var(--border); text-transform: uppercase; }
 
-        #luxury-alert {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #0f172a; border: 2px solid var(--gold); padding: 40px; border-radius: 20px;
-            text-align: center; z-index: 9999; display: none; box-shadow: 0 0 50px rgba(0,0,0,0.8);
-        }
-
-        .book-btn { width: 100%; padding: 15px; background: var(--gold); border: none; border-radius: 10px; font-weight: 900; cursor: pointer; color: black; }
-        .book-btn:disabled { background: var(--disabled); color: #475569; cursor: not-allowed; border: 1px solid var(--border); }
-        
+        .book-btn { width: 100%; padding: 15px; background: var(--gold); border: none; border-radius: 10px; font-weight: 900; cursor: pointer; color: black; text-transform: uppercase; letter-spacing: 1px; }
+        .book-btn:disabled { background: var(--disabled) !important; color: #475569 !important; cursor: not-allowed; border: 1px solid var(--border); box-shadow: none !important; }
         .action-btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.7rem; font-weight: 700; color: white; margin-right: 5px; }
-        .btn-disabled { background: #1e293b !important; color: #475569 !important; cursor: not-allowed; opacity: 0.6; }
+
+        /* Compact POS Items */
+        .pos-item-card { background:#1e293b; padding:12px; border-radius:12px; cursor:pointer; border:1px solid var(--border); text-align:center; transition:0.2s; }
+        .pos-item-card:hover { border-color: var(--gold); background: #2d3a4f; }
+        .pos-item-name { font-size: 0.75rem; font-weight: 700; margin-bottom: 4px; color: #fff; }
+        .pos-item-price { color: var(--gold); font-size: 0.7rem; font-weight: 600; }
+
+        #printable-invoice { background: #fff; color: #000; padding: 50px; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .inv-header { border-bottom: 4px solid var(--gold); padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; }
+        .inv-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .inv-table th { text-align: left; border-bottom: 2px solid #eee; padding: 10px; color: #64748b; font-size: 0.8rem; }
+        .inv-table td { padding: 15px 10px; border-bottom: 1px solid #f1f5f9; }
+        .inv-total-row { background: #0f172a; color: white; }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+            #invoice-modal { position: absolute; top: 0; left: 0; width: 100%; background: white; }
+        }
     </style>
 </head>
 <body>
 
-<div id="luxury-alert">
-    <h2 style="font-family:'Playfair Display'; color:var(--gold); margin:0;">CONGRATULATIONS</h2>
+<div id="luxury-alert" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0f172a; border: 2px solid var(--gold); padding: 40px; border-radius: 20px; text-align: center; z-index: 9999; display: none; box-shadow: 0 0 50px rgba(0,0,0,0.8);">
+    <h2 style="font-family:'Playfair Display'; color:var(--gold); margin:0;">SYSTEM NOTICE</h2>
     <p id="alert-msg" style="margin:20px 0; font-weight:300;"></p>
     <button class="book-btn" onclick="closeAlert()">Confirm</button>
 </div>
@@ -86,23 +97,38 @@
 
 <main>
     <div id="customer-view" class="view active-view">
-        <section style="height: 20vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #020617;">
-            <h1 style="font-family:'Playfair Display'; font-size: 3rem; margin: 0;">Azure Sanctuary</h1>
-            <p style="color: var(--gold); letter-spacing: 4px; font-size: 0.8rem;">ULTRA-LUXURY RESORT & SPA</p>
+        <section style="height: 25vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle, #0f172a 0%, #020617 100%);">
+            <h1 style="font-family:'Playfair Display'; font-size: 3.5rem; margin: 0;">Azure Sanctuary</h1>
+            <p style="color: var(--gold); letter-spacing: 6px; font-size: 0.8rem; font-weight: 800;">ULTRA-LUXURY RESORT & SPA</p>
         </section>
+        
         <section class="room-grid" id="roomDisplay"></section>
-        <section id="booking-form" style="padding: 60px 10%; background: #000;">
-            <div style="background:var(--card); padding:40px; border-radius:30px; max-width:900px; margin:auto; border:1px solid var(--border);">
-                <h2 style="color:var(--gold); margin-bottom:20px;">Reservation Inquiry</h2>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-                    <div><label>Suite</label><input type="text" id="r_type" readonly></div>
-                    <div><label>PAX</label><select id="r_pax"><option>1 Person</option><option selected>2 Persons</option><option>4 Persons</option></select></div>
-                    <div><label>Name</label><input type="text" id="r_name"></div>
-                    <div><label>Phone</label><input type="text" id="r_phone"></div>
+
+        <section id="booking-form" style="padding: 80px 10%; background: #000;">
+            <div style="background:var(--card); padding:50px; border-radius:30px; max-width:900px; margin:auto; border:1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="color:var(--gold); font-family:'Playfair Display'; font-size: 2rem; margin: 0;">Reservation Inquiry</h2>
+                    <div style="text-align: right; color: var(--gold); font-size: 0.75rem; font-weight: 800; border: 1px solid var(--gold); padding: 5px 15px; border-radius: 50px;">
+                        RESERVATIONS: +63 917-AZURE-CRN
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top: 30px;">
+                    <div><label>Selected Suite</label><input type="text" id="r_type" readonly></div>
+                    <div><label>Travelers</label><select id="r_pax"><option>1 Person</option><option selected>2 Persons</option><option>4 Persons</option></select></div>
+                    <div><label>Full Name</label><input type="text" id="r_name" placeholder="John Doe"></div>
+                    <div><label>Phone Number</label><input type="text" id="r_phone" placeholder="+63 9xx"></div>
                     <div><label>Check-In</label><input type="date" id="r_in"></div>
                     <div><label>Check-Out</label><input type="date" id="r_out"></div>
-                    <div style="grid-column: 1/-1;"><label>Transport</label><select id="r_transport"><option>None</option><option>Airport Pickup</option><option>Seaport Pickup</option></select></div>
-                    <button class="book-btn" id="submitBookingBtn" style="grid-column: 1/-1;" onclick="submitBooking()">Request Stay</button>
+                    <div style="grid-column: 1/-1;">
+                        <label>Transportation Assistance</label>
+                        <select id="r_trans">
+                            <option value="None">No assistance needed</option>
+                            <option value="Private Van">Airport (Busuanga) Private Van - ₱3,500</option>
+                            <option value="Speedboat">Sea Port (Coron) Speedboat - ₱12,000</option>
+                            <option value="Helicopter">Airport (Busuanga) Helicopter - ₱85,000</option>
+                        </select>
+                    </div>
+                    <button class="book-btn" id="submitBookingBtn" style="grid-column: 1/-1; margin-top: 20px;" onclick="submitBooking()">Request Stay</button>
                 </div>
             </div>
         </section>
@@ -110,34 +136,39 @@
 
     <div id="admin-view" class="view">
         <div style="padding:15px 4%; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:#020617;">
-            <h2 style="color:var(--gold); margin:0; font-size:1rem;">PMS TERMINAL</h2>
+            <h2 style="color:var(--gold); margin:0; font-size:1rem; letter-spacing: 2px;">PMS TERMINAL v4.2</h2>
             <div id="revenue-display" style="font-size:1.5rem; font-weight:900; color:var(--gold);">₱0</div>
-            <button onclick="showView('customer-view')" class="action-btn" style="background:var(--danger)">Lock</button>
+            <button onclick="showView('customer-view')" class="action-btn" style="background:var(--danger)">Logout</button>
         </div>
 
         <div class="pos-container">
             <nav class="pos-nav">
                 <button class="nav-item active" onclick="switchTab('desk', this)">Front Desk</button>
                 <button class="nav-item" onclick="switchTab('resto', this)">Resto & Bar</button>
-                <button class="nav-item" onclick="switchTab('services', this)">Services</button>
-                <button class="nav-item" onclick="switchTab('audit', this)">Audit</button>
+                <button class="nav-item" onclick="switchTab('services', this)">Spa & Activity</button>
+                <button class="nav-item" onclick="switchTab('transport', this)">Transport</button>
+                <button class="nav-item" onclick="switchTab('audit', this)">Analytics</button>
             </nav>
 
             <section class="pos-main">
                 <div id="tab-desk" class="pos-tab active-tab">
-                    <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px;">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px;">
                         <div>
-                            <h3 style="color:var(--gold);">Arrivals & In-House</h3>
+                            <h3 style="color:var(--gold);">Live Guest Folios</h3>
                             <div id="arrival-logs"></div>
                         </div>
-                        <div style="background:rgba(255,255,255,0.02); padding:20px; border-radius:15px; border:1px solid var(--border);">
-                            <h4 style="margin:0 0 15px 0; color:var(--gold);">Walk-In Entry</h4>
-                            <label>Assigned Room</label><input type="number" id="w_room" readonly>
-                            <label>Guest Name</label><input type="text" id="w_name">
-                            <label>Contact Number</label><input type="text" id="w_phone" placeholder="09XX XXX XXXX">
-                            <label>PAX</label><input type="number" id="w_pax" value="2">
-                            <label>Nights</label><input type="number" id="w_nights" value="1">
-                            <button class="book-btn" style="margin-top:15px;" onclick="processWalkIn()">Check-In Walk-In</button>
+                        <div style="background:rgba(255,255,255,0.03); padding:25px; border-radius:20px; border:1px solid var(--border);">
+                            <h3 style="color:var(--gold); margin-top:0;">Walk-In Entry</h3>
+                            <div style="display:grid; gap:10px;">
+                                <div><label style="font-size:0.7rem;">Room Number</label><input type="number" id="adm_room" placeholder="000"></div>
+                                <div><label style="font-size:0.7rem;">Guest Full Name</label><input type="text" id="adm_name"></div>
+                                <div><label style="font-size:0.7rem;">Contact Info</label><input type="text" id="adm_phone"></div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                                    <div><label style="font-size:0.7rem;">Stay (Nights)</label><input type="number" id="adm_nights" value="1"></div>
+                                    <div><label style="font-size:0.7rem;">Pax</label><select id="adm_pax"><option>1</option><option selected>2</option><option>4</option></select></div>
+                                </div>
+                                <button class="book-btn" style="margin-top:10px;" onclick="processWalkIn()">Register & Check-In</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -145,88 +176,92 @@
                 <div id="tab-pos" class="pos-tab">
                     <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px;">
                         <div id="pos-items-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:10px;"></div>
-                        <div style="background:#1e293b; padding:20px; border-radius:15px; border:1px solid var(--gold);">
-                            <label>CHARGE TO ROOM:</label>
-                            <select id="pos-guest-select"></select>
-                            <div id="cart-list" style="margin-top:20px; font-size:0.8rem; border-bottom:1px solid var(--border);"></div>
-                            <div id="cart-total" style="font-weight:900; margin: 15px 0;">Total: ₱0</div>
-                            <button class="book-btn" onclick="processCharge()">Complete Order</button>
+                        <div style="background:#1e293b; padding:20px; border-radius:15px; border:1px solid var(--gold); height: fit-content;">
+                            <label style="font-size: 0.7rem; color: var(--gold); font-weight: 800;">CHARGE TO ROOM:</label>
+                            <select id="pos-guest-select" style="font-size: 0.8rem; padding: 8px;"></select>
+                            <div id="cart-list" style="margin-top:20px; font-size:0.8rem; border-bottom:1px solid var(--border); min-height: 100px;"></div>
+                            <div id="cart-total" style="font-weight:900; margin: 15px 0; font-size: 1rem;">Total: ₱0</div>
+                            <button class="book-btn" style="padding: 12px; font-size: 0.8rem;" onclick="processCharge()">Post Charges</button>
                         </div>
                     </div>
                 </div>
 
                 <div id="tab-audit" class="pos-tab">
-                    <h3>Shift Audit</h3>
+                    <h3 style="color:var(--gold)">Financial Summary</h3>
                     <div id="audit-stats"></div>
-                    <button class="book-btn" style="background:var(--danger); color:white; margin-top:30px;" onclick="masterReset()">RESET ALL DATA</button>
+                    <button class="book-btn" style="background:var(--danger); color:white; margin-top:50px; opacity: 0.5;" onclick="masterReset()">SYSTEM WIPE</button>
                 </div>
             </section>
 
             <aside>
-                <h3 style="font-size:0.8rem; margin:0 0 10px 0;">Room Matrix</h3>
+                <h3 style="font-size:0.8rem; margin:0 0 10px 0; color: #94a3b8;">Real-time Matrix</h3>
                 <div id="roomMatrix" class="room-matrix-container"></div>
             </aside>
+        </div>
+    </div>
+
+    <div id="invoice-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; overflow-y:auto; padding:40px 20px;">
+        <div id="printable-invoice" style="max-width:800px; margin:auto; border-radius:8px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+            <div id="invoice-content-placeholder"></div>
+            <div style="margin-top:40px; display:flex; gap:15px;" class="no-print">
+                <button onclick="window.print()" style="flex:1; padding:18px; background:#020617; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:800; font-size: 1rem;">DOWNLOAD PDF</button>
+                <button onclick="closeInvoice()" style="flex:1; padding:18px; background:#f1f5f9; color:#020617; border:none; border-radius:10px; cursor:pointer; font-weight:800;">CLOSE</button>
+            </div>
         </div>
     </div>
 </main>
 
 <script>
 const baseRooms = [
-    { id: 'STD', name: 'Standard Sanctuary', price: 4500, start: 101, end: 125, img: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=600', quote: 'A peaceful haven designed for ultimate restoration.' },
-    { id: 'DLX', name: 'Deluxe Ocean Drift', price: 7200, start: 126, end: 140, img: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600', quote: 'Wake up to the rhythmic whispers of the Coron tides.' },
-    { id: 'EXE', name: 'Executive Suite', price: 12500, start: 141, end: 150, img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600', quote: 'Uncompromising luxury for those who lead the world.' },
-    { id: 'PNT', name: 'Royal Penthouse', price: 25000, start: 151, end: 155, img: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600', quote: 'The pinnacle of Azure living. Your private kingdom in the sky.' }
+    { id: 'STD', name: 'Standard Sanctuary', price: 4500, start: 101, end: 125, img: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=600' },
+    { id: 'DLX', name: 'Deluxe Ocean Drift', price: 7200, start: 126, end: 140, img: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600' },
+    { id: 'EXE', name: 'Executive Suite', price: 12500, start: 141, end: 150, img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600' },
+    { id: 'PNT', name: 'Royal Penthouse', price: 25000, start: 151, end: 155, img: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=600' }
 ];
 
 const items = {
     resto: [
-        {n:"Grilled Blue Marlin", p:650}, {n:"Lechon Kawali", p:450}, {n:"Kinilaw", p:380}, 
-        {n:"Crocodile Sisig", p:520}, {n:"Seafood Paella", p:1200}, {n:"Crispy Pata", p:950},
-        {n:"Azure Burger", p:550}, {n:"Buko Mojito", p:320}, {n:"Mango Daiquiri", p:350},
-        {n:"San Miguel Beer", p:150}, {n:"Espresso Martini", p:450}, {n:"Fresh Buko", p:120}
+        {n:"Coron Lobster", p:2800}, {n:"Wagyu Beef", p:4500}, {n:"Garlic Prawns", p:1200}, {n:"Sea Bass", p:1800},
+        {n:"Azure Mocktail", p:450}, {n:"Fresh Mango Shake", p:350}, {n:"Coconut Water", p:250}, {n:"Iced Latte", p:280},
+        {n:"Sparkling Water", p:220}, {n:"Signature Tea", p:180}, {n:"Calamansi Juice", p:150}, {n:"Classic Coke", p:120},
+        {n:"Vintage Champagne", p:8500}, {n:"Red Wine Glass", p:1200}, {n:"Local Pilsner", p:350}, {n:"Single Malt", p:2200}
     ],
-    services: [
-        {n:"24/7 Butler Service", p:2500}, {n:"Private Chef Dinner", p:5500}, 
-        {n:"In-Room Breakfast", p:1200}, {n:"In-Room Dinner", p:1800},
-        {n:"Hilot Spa Massage", p:2200}, {n:"Aromatherapy Spa", p:2800},
-        {n:"Island Hopping (Tour A)", p:1500}, {n:"Private Van Hire", p:3500}
+    services: [{n:"Hilot Massage", p:2200}, {n:"Island Hopping", p:8500}, {n:"Jet Ski", p:4500}, {n:"Scuba Session", p:5500}],
+    transport: [
+        {n:"Busuanga Airport Van", p:3500}, {n:"Coron Sea Port Boat", p:12000}, {n:"Busuanga Helicopter", p:85000}
     ]
 };
 
-let state = JSON.parse(localStorage.getItem('azure_master_v3')) || {
-    folios: [],
-    revenue: 0,
-    sales: { rooms: 0, resto: 0, services: 0 }
+let state = JSON.parse(localStorage.getItem('azure_v5')) || {
+    folios: [], revenue: 0, sales: { rooms: 0 }, history: []
 };
 
 let activeCart = [];
 
+function save() { localStorage.setItem('azure_v5', JSON.stringify(state)); }
+
 function renderRooms() {
     const g = document.getElementById('roomDisplay');
     g.innerHTML = baseRooms.map(r => {
-        const totalRooms = (r.end - r.start) + 1;
-        // CORRECTED: Count only physical occupants, not pending reservations
-        const occupiedCount = state.folios.filter(f => f.type === r.id && f.room !== null).length;
-        const isFull = occupiedCount >= totalRooms;
-        
+        const occ = state.folios.filter(f => f.type === r.id).length;
+        const total = (r.end - r.start) + 1;
+        const isFull = occ >= total;
         return `
             <div class="room-card">
                 <div class="room-img" style="background-image:url('${r.img}')">
                     <div class="room-status-dot ${isFull ? 'status-full' : 'status-available'}"></div>
                 </div>
                 <div class="room-body">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
                         <h3 style="margin:0;">${r.name}</h3>
-                        <span style="font-size:0.7rem; color:${isFull ? 'var(--danger)' : 'var(--success)'}">${totalRooms - occupiedCount} Available</span>
+                        <span style="font-size:0.7rem; color: #94a3b8;">${total - occ} AVAILABLE</span>
                     </div>
-                    <p class="room-tagline">"${r.quote}"</p>
-                    <div class="room-price">₱${r.price.toLocaleString()} <span style="font-size:0.7rem; color:#64748b;">/ NIGHT</span></div>
+                    <div class="room-price">₱${r.price.toLocaleString()} / night</div>
                     <button class="book-btn" ${isFull ? 'disabled' : ''} onclick="selectRoom('${r.id}','${r.name}')">
-                        ${isFull ? 'FULLY BOOKED' : 'RESERVE SUITE'}
+                        ${isFull ? 'Sold Out' : 'Reserve Now'}
                     </button>
                 </div>
-            </div>
-        `;
+            </div>`;
     }).join('');
 }
 
@@ -238,60 +273,147 @@ function selectRoom(id, name) {
 
 function submitBooking() {
     const name = document.getElementById('r_name').value;
-    if(!name) return alert("Please enter guest name.");
-    const f = {
-        fid: "AZ-" + Math.floor(1000 + Math.random()*9000),
-        name: name,
-        type: document.getElementById('r_type').dataset.id,
-        room: null,
-        status: "RESERVED",
-        in: document.getElementById('r_in').value,
-        out: document.getElementById('r_out').value,
-        charges: []
+    const typeId = document.getElementById('r_type').dataset.id;
+    const checkIn = document.getElementById('r_in').value;
+    const checkOut = document.getElementById('r_out').value;
+    const transport = document.getElementById('r_trans').value;
+    const pax = document.getElementById('r_pax').value;
+
+    if(!name || !checkIn || !checkOut || !typeId) return alert("Please select a room, enter your name, and choose check-in/out dates.");
+
+    const tier = baseRooms.find(r => r.id === typeId);
+    let assigned = null;
+    for(let i=tier.start; i<=tier.end; i++) {
+        if(!state.folios.find(f => f.room == i)) { assigned = i; break; }
+    }
+
+    if(!assigned) return alert("No rooms available for this tier.");
+
+    const folio = {
+        fid: "AZ-" + Math.random().toString(36).substr(2, 5).toUpperCase(),
+        name, room: assigned, type: typeId, status: "RESERVED",
+        dates: `${checkIn} to ${checkOut}`, 
+        inDate: checkIn, 
+        outDate: checkOut,
+        pax, transport,
+        charges: [], created: new Date().toLocaleDateString()
     };
-    state.folios.push(f);
+
+    if(transport !== "None") {
+        const tSearch = transport.split(' - ')[0]; 
+        const tItem = items.transport.find(i => i.n.includes(tSearch));
+        if(tItem) folio.charges.push(tItem);
+    }
+
+    state.folios.push(folio);
     save();
-    openAlert("YOUR SANCTUARY AWAITS IN CORON");
+    openAlert(`RESERVATION SUCCESSFUL\nRoom ${assigned} has been held for you from ${checkIn} to ${checkOut}.`);
 }
 
-/* ADMIN */
-window.addEventListener('keydown', (e) => {
-    if(e.shiftKey && e.code === 'KeyA') {
-        if(prompt("Security PIN:") === "1234") { showView('admin-view'); updateAdmin(); }
-    }
-});
+function processWalkIn() {
+    const room = document.getElementById('adm_room').value;
+    const name = document.getElementById('adm_name').value;
+    const nights = document.getElementById('adm_nights').value;
+    const pax = document.getElementById('adm_pax').value;
 
-function updateAdmin() {
-    document.getElementById('revenue-display').innerText = `₱${state.revenue.toLocaleString()}`;
-    renderFolios();
-    renderMatrix();
-    renderAudit();
+    if(!room || !name) return alert("Room Number and Guest Name are required.");
+
+    const tier = baseRooms.find(r => room >= r.start && room <= r.end);
+    if(!tier) return alert("Invalid Room Number.");
+
+    const today = new Date().toISOString().split('T')[0];
+    const folio = {
+        fid: "WK-" + Math.random().toString(36).substr(2, 5).toUpperCase(),
+        name, room, type: tier.id, status: "IN-HOUSE",
+        dates: `${today} (Walk-in ${nights} nights)`, 
+        inDate: today,
+        outDate: "Walk-in Stay",
+        pax: pax + " Persons",
+        charges: [], created: new Date().toLocaleDateString()
+    };
+
+    state.folios.push(folio);
+    save();
+    updateAdmin();
+    ['adm_room', 'adm_name', 'adm_phone'].forEach(id => document.getElementById(id).value = '');
+    alert(`Walk-in Successful: ${name} checked into Room ${room}`);
 }
 
 function renderFolios() {
-    const log = document.getElementById('arrival-logs');
-    log.innerHTML = state.folios.map(f => {
-        const isInHouse = f.status === 'IN-HOUSE';
+    const container = document.getElementById('arrival-logs');
+    container.innerHTML = state.folios.map(f => {
+        const isReserved = f.status === 'RESERVED';
+        const borderColor = isReserved ? 'var(--gold)' : 'var(--success)';
         return `
-            <div style="background:var(--card); padding:15px; border-radius:12px; border-left:4px solid ${f.status==='RESERVED'?'var(--gold)':'var(--danger)'}; margin-bottom:10px;">
-                <div style="display:flex; justify-content:space-between;">
-                    <strong>${f.name}</strong>
-                    <span>${f.type} | RM: ${f.room || 'TBD'}</span>
+        <div style="background:var(--card); padding:20px; border-radius:15px; border-left:4px solid ${borderColor}; margin-bottom:15px;">
+            <div style="display:flex; justify-content:space-between; align-items:start;">
+                <div>
+                    <strong>${f.name}</strong><br>
+                    <span style="font-size:0.7rem; color:var(--gold)">${f.fid}</span><br>
+                    <span style="font-size:0.65rem; color:#94a3b8; display:block; margin-top:5px;">STAY: ${f.dates}</span>
                 </div>
-                <div style="font-size:0.7rem; margin:10px 0;">ID: ${f.fid} | ${f.status} | Stay: ${f.in} to ${f.out}</div>
-                <button class="action-btn ${isInHouse ? 'btn-disabled' : ''}" 
-                        style="background:var(--success)" 
-                        ${isInHouse ? 'disabled' : ''} 
-                        onclick="checkInGuest('${f.fid}')">Check-In</button>
-                <button class="action-btn" style="background:var(--danger)" onclick="checkOutGuest('${f.fid}')">Check-Out</button>
-                <button class="action-btn" style="background:#64748b" onclick="noShow('${f.fid}')">No-Show</button>
+                <div style="text-align:right;"><div style="font-weight:800; color:var(--gold)">ROOM ${f.room}</div></div>
             </div>
-        `;
-    }).reverse().join('');
+            <div style="display:flex; gap:5px; margin-top:15px;">
+                ${isReserved ? 
+                    `<button class="action-btn" style="background:var(--success); flex:2;" onclick="checkIn('${f.fid}')">Check-In</button>` :
+                    `<button class="action-btn" style="background:var(--gold); color:black; flex:1;" onclick="checkOut('${f.fid}')">Check-Out</button>`
+                }
+            </div>
+        </div>`;
+    }).join('') || '<p style="color:#475569; text-align:center;">No active folios</p>';
 
     const sel = document.getElementById('pos-guest-select');
     const inHouse = state.folios.filter(f => f.status === 'IN-HOUSE');
-    sel.innerHTML = inHouse.map(f => `<option value="${f.fid}">${f.name} (RM ${f.room})</option>`).join('') || '<option>None</option>';
+    sel.innerHTML = inHouse.map(f => `<option value="${f.fid}">${f.name} (RM ${f.room})</option>`).join('') || '<option>No In-House Guests</option>';
+}
+
+function checkIn(fid) {
+    const f = state.folios.find(f => f.fid === fid);
+    f.status = 'IN-HOUSE';
+    save(); updateAdmin();
+}
+
+function checkOut(fid) {
+    const idx = state.folios.findIndex(f => f.fid === fid);
+    const f = state.folios[idx];
+    const tier = baseRooms.find(r => r.id === f.type);
+    const extraTotal = f.charges.reduce((a,b) => a+b.p, 0);
+    const grandTotal = tier.price + extraTotal;
+
+    const invoice = {
+        id: "INV-" + Date.now().toString().slice(-6),
+        guest: f.name, room: f.room, tier: tier.name,
+        base: tier.price, extras: f.charges, total: grandTotal,
+        date: new Date().toLocaleString()
+    };
+
+    state.revenue += grandTotal;
+    state.sales.rooms++;
+    state.history.push(invoice);
+    state.folios.splice(idx, 1);
+    save(); updateAdmin();
+    showInvoice(invoice);
+}
+
+function showInvoice(inv) {
+    let rows = `<tr><td>Stay - ${inv.tier}</td><td style="text-align:right;">₱${inv.base.toLocaleString()}</td></tr>`;
+    inv.extras.forEach(e => {
+        rows += `<tr><td style="color:#64748b;">${e.n}</td><td style="text-align:right;">₱${e.p.toLocaleString()}</td></tr>`;
+    });
+
+    document.getElementById('invoice-content-placeholder').innerHTML = `
+        <div class="inv-header">
+            <div><h1 style="margin:0; font-family:'Playfair Display';">AZURE CORON</h1><p style="margin:0; font-size:0.7rem;">PALAWAN, PHILIPPINES</p></div>
+            <div style="text-align:right"><h2 style="margin:0; color:var(--gold)">OFFICIAL RECEIPT</h2><p style="margin:0; font-weight:800;"># ${inv.id}</p></div>
+        </div>
+        <table class="inv-table">
+            <thead><tr><th>Description</th><th style="text-align:right">Amount</th></tr></thead>
+            <tbody>${rows}</tbody>
+            <tfoot><tr class="inv-total-row"><td style="padding:20px;">GRAND TOTAL</td><td style="padding:20px; text-align:right; font-size:1.4rem;">₱${inv.total.toLocaleString()}</td></tr></tfoot>
+        </table>
+    `;
+    document.getElementById('invoice-modal').style.display = 'block';
 }
 
 function renderMatrix() {
@@ -300,125 +422,68 @@ function renderMatrix() {
     baseRooms.forEach(tier => {
         html += `<div class="tier-label">${tier.name}</div>`;
         for(let i=tier.start; i<=tier.end; i++) {
-            let statusClass = '';
             const occ = state.folios.find(f => f.room == i);
-            if(occ) statusClass = occ.status === 'RESERVED' ? 'reserved' : 'occupied';
-            html += `<div class="room-box ${statusClass}" onclick="matrixClick(${i}, '${tier.id}', '${statusClass}')">${i}</div>`;
+            let statusClass = occ ? (occ.status === 'RESERVED' ? 'reserved' : 'occupied') : '';
+            html += `<div class="room-box ${statusClass}">${i}</div>`;
         }
     });
     m.innerHTML = html;
-}
-
-function matrixClick(num, tierId, status) {
-    if(status !== '') return;
-    document.getElementById('w_room').value = num;
-    document.getElementById('w_room').dataset.tier = tierId;
-}
-
-function processWalkIn() {
-    const num = document.getElementById('w_room').value;
-    const name = document.getElementById('w_name').value;
-    const phone = document.getElementById('w_phone').value;
-    if(!num || !name || !phone) return alert("Room, Name, and Contact Number required.");
-    
-    const f = {
-        fid: "WALK-" + num,
-        name: name,
-        phone: phone,
-        type: document.getElementById('w_room').dataset.tier,
-        room: num,
-        status: "IN-HOUSE",
-        in: new Date().toISOString().split('T')[0],
-        out: 'N/A',
-        charges: []
-    };
-    state.folios.push(f);
-    save(); updateAdmin();
-}
-
-function checkInGuest(fid) {
-    const f = state.folios.find(f => f.fid === fid);
-    if(f.status === 'IN-HOUSE') return;
-    const tier = baseRooms.find(r => r.id === f.type);
-    for(let i=tier.start; i<=tier.end; i++) {
-        if(!state.folios.find(folio => folio.room == i)) {
-            f.room = i;
-            f.status = 'IN-HOUSE';
-            save(); updateAdmin();
-            return;
-        }
-    }
-    alert("No free rooms in this category!");
-}
-
-function checkOutGuest(fid) {
-    const idx = state.folios.findIndex(f => f.fid === fid);
-    const f = state.folios[idx];
-    const nights = 1; 
-    const roomP = baseRooms.find(r => r.id === f.type).price;
-    const extras = f.charges.reduce((a,b)=>a+b.p, 0);
-    state.revenue += (nights * roomP) + extras;
-    state.sales.rooms++;
-    state.folios.splice(idx, 1);
-    save(); updateAdmin();
-}
-
-function noShow(fid) {
-    state.folios = state.folios.filter(f => f.fid !== fid);
-    save(); updateAdmin();
-}
-
-function processCharge() {
-    const fid = document.getElementById('pos-guest-select').value;
-    const f = state.folios.find(f => f.fid === fid);
-    if(!f) return alert("Select an in-house guest.");
-    activeCart.forEach(c => { f.charges.push(c); state.sales[c.type]++; });
-    activeCart = [];
-    document.getElementById('cart-list').innerHTML = '';
-    save(); updateAdmin();
 }
 
 function switchTab(t, b) {
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     b.classList.add('active');
     document.querySelectorAll('.pos-tab').forEach(p => p.classList.remove('active-tab'));
-    if(t === 'audit') document.getElementById('tab-audit').classList.add('active-tab');
-    else if (t === 'desk') document.getElementById('tab-desk').classList.add('active-tab');
+    if(t === 'audit') { document.getElementById('tab-audit').classList.add('active-tab'); renderAudit(); }
+    else if(t === 'desk') { document.getElementById('tab-desk').classList.add('active-tab'); }
     else { document.getElementById('tab-pos').classList.add('active-tab'); renderPOS(t); }
 }
 
 function renderPOS(key) {
-    const menu = items[key];
-    document.getElementById('pos-items-grid').innerHTML = menu.map(i => `
-        <div onclick="addToCart('${i.n}', ${i.p}, '${key}')" style="background:#1e293b; padding:15px; border-radius:10px; cursor:pointer; text-align:center; border:1px solid var(--border);">
-            <div style="font-size:0.7rem; font-weight:800;">${i.n}</div>
-            <div style="color:var(--gold); font-size:0.7rem;">₱${i.p}</div>
-        </div>
-    `).join('');
+    document.getElementById('pos-items-grid').innerHTML = items[key].map(i => `
+        <div class="pos-item-card" onclick="addToCart('${i.n}', ${i.p})">
+            <div class="pos-item-name">${i.n}</div>
+            <div class="pos-item-price">₱${i.p.toLocaleString()}</div>
+        </div>`).join('');
 }
 
-function addToCart(n, p, type) {
-    activeCart.push({n, p, type});
-    document.getElementById('cart-list').innerHTML = activeCart.map(i => `<div style="display:flex; justify-content:space-between"><span>${i.n}</span><span>₱${i.p}</span></div>`).join('');
+function addToCart(n, p) {
+    activeCart.push({n, p});
+    document.getElementById('cart-list').innerHTML = activeCart.map(i => `
+        <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+            <span>${i.n}</span><span>₱${i.p.toLocaleString()}</span>
+        </div>`).join('');
     document.getElementById('cart-total').innerText = `Total: ₱${activeCart.reduce((a,b)=>a+b.p,0).toLocaleString()}`;
 }
 
-function renderAudit() {
-    document.getElementById('audit-stats').innerHTML = `
-        <p>Rooms Checked Out: ${state.sales.rooms}</p>
-        <p>Meals Sold: ${state.sales.resto}</p>
-        <p>Services Sold: ${state.sales.services}</p>
-        <h2 style="color:var(--gold);">TOTAL: ₱${state.revenue.toLocaleString()}</h2>
-    `;
+function processCharge() {
+    const fid = document.getElementById('pos-guest-select').value;
+    const f = state.folios.find(f => f.fid === fid);
+    if(!f || activeCart.length === 0) return alert("Select guest and items.");
+    f.charges.push(...activeCart);
+    activeCart = [];
+    document.getElementById('cart-list').innerHTML = '';
+    document.getElementById('cart-total').innerText = 'Total: ₱0';
+    save(); updateAdmin();
+}
+
+function updateAdmin() {
+    document.getElementById('revenue-display').innerText = `₱${state.revenue.toLocaleString()}`;
+    renderFolios(); renderMatrix(); 
 }
 
 function openAlert(m) { document.getElementById('alert-msg').innerText = m; document.getElementById('luxury-alert').style.display = 'block'; }
 function closeAlert() { document.getElementById('luxury-alert').style.display = 'none'; location.reload(); }
-function masterReset() { localStorage.clear(); location.reload(); }
 function showView(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view')); document.getElementById(id).classList.add('active-view'); }
-function save() { localStorage.setItem('azure_master_v3', JSON.stringify(state)); }
+function closeInvoice() { document.getElementById('invoice-modal').style.display = 'none'; }
 
-document.addEventListener('DOMContentLoaded', renderRooms);
+function masterReset() { if(confirm("Permanent Wipe?")) { localStorage.removeItem('azure_v5'); location.reload(); } }
+
+window.addEventListener('keydown', (e) => {
+    if(e.shiftKey && e.code === 'KeyA') { if(prompt("TERMINAL PIN:") === "1234") { showView('admin-view'); updateAdmin(); } }
+});
+
+document.addEventListener('DOMContentLoaded', () => { renderRooms(); });
 </script>
 </body>
 </html>
