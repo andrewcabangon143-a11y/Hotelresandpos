@@ -75,6 +75,10 @@
         .inv-table td { padding: 15px 10px; border-bottom: 1px solid #f1f5f9; }
         .inv-total-row { background: #0f172a; color: white; }
 
+        .audit-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.75rem; color: #94a3b8; }
+        .audit-table th { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); color: var(--gold); }
+        .audit-table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
         @media print {
             .no-print { display: none !important; }
             body { background: white; }
@@ -189,6 +193,22 @@
                 <div id="tab-audit" class="pos-tab">
                     <h3 style="color:var(--gold)">Financial Summary</h3>
                     <div id="audit-stats"></div>
+                    
+                    <h3 style="color:var(--gold); margin-top:40px;">Itemized Sales Ledger</h3>
+                    <div id="audit-items-list" style="max-height: 400px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 15px; border: 1px solid var(--border); padding: 20px;">
+                        <table class="audit-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Guest</th>
+                                    <th>Item/Description</th>
+                                    <th style="text-align:right">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-items-body"></tbody>
+                        </table>
+                    </div>
+
                     <button class="book-btn" style="background:var(--danger); color:white; margin-top:50px; opacity: 0.5;" onclick="masterReset()">SYSTEM WIPE</button>
                 </div>
             </section>
@@ -465,6 +485,53 @@ function processCharge() {
     document.getElementById('cart-list').innerHTML = '';
     document.getElementById('cart-total').innerText = 'Total: ₱0';
     save(); updateAdmin();
+}
+
+function renderAudit() {
+    // Stats Summary
+    document.getElementById('audit-stats').innerHTML = `
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; margin-top:15px;">
+            <div style="background:var(--card); padding:20px; border-radius:15px; border:1px solid var(--border);">
+                <span style="font-size:0.7rem; color:#64748b;">TOTAL REVENUE</span>
+                <div style="font-size:1.4rem; font-weight:900; color:var(--gold);">₱${state.revenue.toLocaleString()}</div>
+            </div>
+            <div style="background:var(--card); padding:20px; border-radius:15px; border:1px solid var(--border);">
+                <span style="font-size:0.7rem; color:#64748b;">CHECKED OUT</span>
+                <div style="font-size:1.4rem; font-weight:900; color:var(--success);">${state.history.length} Folios</div>
+            </div>
+            <div style="background:var(--card); padding:20px; border-radius:15px; border:1px solid var(--border);">
+                <span style="font-size:0.7rem; color:#64748b;">ROOM SALES</span>
+                <div style="font-size:1.4rem; font-weight:900; color:var(--gold);">${state.sales.rooms}</div>
+            </div>
+        </div>
+    `;
+
+    // Itemized Sales List
+    const body = document.getElementById('audit-items-body');
+    let itemHtml = '';
+    state.history.forEach(inv => {
+        // Room Base Sale
+        itemHtml += `
+            <tr>
+                <td>${inv.date.split(',')[0]}</td>
+                <td>${inv.guest}</td>
+                <td style="color:#fff;">Room Stay: ${inv.tier} (RM ${inv.room})</td>
+                <td style="text-align:right;">₱${inv.base.toLocaleString()}</td>
+            </tr>
+        `;
+        // POS Extras
+        inv.extras.forEach(item => {
+            itemHtml += `
+                <tr>
+                    <td>${inv.date.split(',')[0]}</td>
+                    <td>${inv.guest}</td>
+                    <td>${item.n}</td>
+                    <td style="text-align:right;">₱${item.p.toLocaleString()}</td>
+                </tr>
+            `;
+        });
+    });
+    body.innerHTML = itemHtml || '<tr><td colspan="4" style="text-align:center; padding:40px;">No sales recorded yet.</td></tr>';
 }
 
 function updateAdmin() {
