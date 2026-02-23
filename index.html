@@ -127,9 +127,9 @@
                         <label>Transportation Assistance</label>
                         <select id="r_trans">
                             <option value="None">No assistance needed</option>
-                            <option value="Private Van">Airport (Busuanga) Private Van - ₱3,500</option>
-                            <option value="Speedboat">Sea Port (Coron) Speedboat - ₱12,000</option>
-                            <option value="Helicopter">Airport (Busuanga) Helicopter - ₱85,000</option>
+                            <option value="Private Van">Sea port Boat transport (Coron) </option>
+                            <option value="Speedboat">Sea Port Van transport (Coron)</option>
+                            <option value="Helicopter">Airport Van transport (Busuanga)</option>
                         </select>
                     </div>
                     <button class="book-btn" id="submitBookingBtn" style="grid-column: 1/-1; margin-top: 20px;" onclick="submitBooking()">Request Stay</button>
@@ -224,7 +224,7 @@
         <div id="printable-invoice" style="max-width:800px; margin:auto; border-radius:8px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
             <div id="invoice-content-placeholder"></div>
             <div style="margin-top:40px; display:flex; gap:15px;" class="no-print">
-                <button onclick="window.print()" style="flex:1; padding:18px; background:#020617; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:800; font-size: 1rem;">DOWNLOAD PDF</button>
+                <button onclick="window.print()" style="flex:1; padding:18px; background:#020617; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:800; font-size: 1rem;">Print Invoice</button>
                 <button onclick="closeInvoice()" style="flex:1; padding:18px; background:#f1f5f9; color:#020617; border:none; border-radius:10px; cursor:pointer; font-weight:800;">CLOSE</button>
             </div>
         </div>
@@ -241,14 +241,14 @@ const baseRooms = [
 
 const items = {
     resto: [
-        {n:"Coron Lobster", p:2800}, {n:"Wagyu Beef", p:4500}, {n:"Garlic Prawns", p:1200}, {n:"Sea Bass", p:1800},
-        {n:"Azure Mocktail", p:450}, {n:"Fresh Mango Shake", p:350}, {n:"Coconut Water", p:250}, {n:"Iced Latte", p:280},
-        {n:"Sparkling Water", p:220}, {n:"Signature Tea", p:180}, {n:"Calamansi Juice", p:150}, {n:"Classic Coke", p:120},
-        {n:"Vintage Champagne", p:8500}, {n:"Red Wine Glass", p:1200}, {n:"Local Pilsner", p:350}, {n:"Single Malt", p:2200}
+        {n:"Coron Lobster", p:800}, {n:"Wagyu Beef", p:1500}, {n:"Garlic Prawns", p:200}, {n:"Sea Bass", p:300},
+        {n:"Azure Mocktail", p:250}, {n:"Fresh Mango Shake", p:150}, {n:"Coconut Water", p:90}, {n:"Iced Latte", p:180},
+        {n:"Sparkling Water", p:120}, {n:"Signature Tea", p:180}, {n:"Calamansi Juice", p:150}, {n:"Classic Coke", p:50},
+        {n:"Vintage Champagne", p:8500}, {n:"Red Wine", p:1200}, {n:"Local Pilsner", p:70}, {n:"Single Malt", p:300}
     ],
-    services: [{n:"Hilot Massage", p:2200}, {n:"Island Hopping", p:8500}, {n:"Jet Ski", p:4500}, {n:"Scuba Session", p:5500}],
+    services: [{n:"Full Spa Promo", p:2200}, {n:"Island Hopping", p:8500}, {n:"VanTrip", p:1500}, {n:"Scuba Session", p:5500}],
     transport: [
-        {n:"Busuanga Airport Van", p:3500}, {n:"Coron Sea Port Boat", p:12000}, {n:"Busuanga Helicopter", p:85000}
+        {n:"Busuanga to Manila(2GO Ferry Tourist class)", p:2700}, {n:"Coron to Manila(2G0 Stateroom)", p:8000}, {n:"Busuanga to Manila(Philippine Airline)", p:5000}
     ]
 };
 
